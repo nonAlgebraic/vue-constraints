@@ -2,7 +2,7 @@
   "name": "vue-constraints",
   "version": "0.1.0",
   "private": true,
-  "main": "dist/vue-constraints.common.js",
+  "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -44,5 +44,5 @@
       "vue-cli-service lint",
       "git add"
     ]
-  }
+  },
 }
