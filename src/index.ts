@@ -2,8 +2,6 @@ import Vue, { DirectiveOptions, PluginObject, VueConstructor, VNode } from 'vue'
 import Component from 'vue-class-component';
 import { Constraints, ConstraintAttributes, ConstrainedFields } from './types';
 
-export { Constraints };
-
 const diffConstraints = (newObj: Constraints, oldObj: Constraints): Constraints | null => {
   if (!newObj && !oldObj) {
     return null;
