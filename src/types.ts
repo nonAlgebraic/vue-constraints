@@ -1,6 +1,5 @@
-import { VNode } from 'vue';
-
-type HTMLInputElementType = 'button'
+type HTMLInputElementType =
+  | 'button'
   | 'checkbox'
   | 'color'
   | 'date'
@@ -23,7 +22,19 @@ type HTMLInputElementType = 'button'
   | 'url'
   | 'week';
 
-type ConstraintTypes = 'required'
+export const ConstraintTypeNames = {
+  REQUIRED: 'required',
+  PATTERN: 'pattern',
+  MIN: 'min',
+  MAX: 'max',
+  STEP: 'step',
+  MIN_LENGTH: 'minLength',
+  MAX_LENGTH: 'maxLength',
+  TYPE: 'type',
+};
+
+type ConstraintTypes =
+  | 'required'
   | 'pattern'
   | 'min'
   | 'max'
@@ -32,19 +43,21 @@ type ConstraintTypes = 'required'
   | 'maxLength'
   | 'type';
 
-export interface ConstraintAttributes extends Pick<HTMLInputElement, ConstraintTypes> {
+export interface ConstraintAttributes
+  extends Pick<HTMLInputElement, ConstraintTypes> {
   type: HTMLInputElementType;
 }
 
 export interface Constraints extends Partial<ConstraintAttributes> {
-  [key: string]: ConstraintAttributes[keyof ConstraintAttributes] | null | undefined;
+  [key: string]:
+    | ConstraintAttributes[keyof ConstraintAttributes]
+    | null
+    | undefined;
 }
 
 export interface ConstrainedField {
   el: HTMLInputElement;
-  constraints: {
-    [key in ConstraintTypes]?: boolean;
-  };
+  constraints: { [key in ConstraintTypes]?: boolean };
 }
 
 export interface ConstrainedFields {

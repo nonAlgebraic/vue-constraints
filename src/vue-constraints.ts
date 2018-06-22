@@ -1,8 +1,12 @@
 import Vue, { DirectiveOptions, PluginObject, VueConstructor, VNode } from 'vue';
-import Component from 'vue-class-component';
-import { Constraints, ConstraintAttributes, ConstrainedFields } from './types';
 
-const diffConstraints = (newObj: Constraints, oldObj: Constraints): Constraints | null => {
+import Component from 'vue-class-component';
+import { Constraints, ConstraintAttributes } from './types';
+
+const diffConstraints = (
+  newObj: Constraints,
+  oldObj: Constraints
+): Constraints | null => {
   if (!newObj && !oldObj) {
     return null;
   } else if (newObj && !oldObj) {
@@ -32,7 +36,12 @@ const diffConstraints = (newObj: Constraints, oldObj: Constraints): Constraints 
   return isDiff ? diff : null;
 };
 
-const constrain = (fieldName: string, el: HTMLInputElement, constraints: Constraints, vnode: VNode) => {
+const constrain = (
+  fieldName: string,
+  el: HTMLInputElement,
+  constraints: Constraints,
+  vnode: VNode
+) => {
   // TODO: deal with type missing
   for (const key of Object.keys(constraints) as Array<keyof ConstraintAttributes>)  {
     const constraint = constraints[key];

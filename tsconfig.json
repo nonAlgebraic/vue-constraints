@@ -13,10 +13,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
+    "declarationDir": "types",
     "types": [
       "node",
       "mocha",
-      "chai"
+      "chai",
     ],
     "paths": {
       "@/*": [
