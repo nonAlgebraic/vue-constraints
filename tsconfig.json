@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es5",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
-    "declaration": true,
     "importHelpers": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
@@ -12,12 +11,10 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "outDir": "dist",
-    "declarationDir": "types",
     "types": [
       "node",
       "mocha",
-      "chai",
+      "chai"
     ],
     "paths": {
       "@/*": [
@@ -32,11 +29,6 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
-  ],
-  "exclude": [
-    "test",
-    "node_modules",
-    "dist"
+    "src/**/*.ts"
   ]
 }
