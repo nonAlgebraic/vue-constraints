@@ -1,7 +1,20 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
 import ConstraintsDirective from './directive';
-import { ComponentWithConstrainedFields, ConstrainedFields, Constraints } from './types';
+import { ComponentWithConstrainedFields, ConstrainedFields, ConstraintsConfig, ConstraintAttributes, Validities } from './types';
+
+const validators = {
+
+}
+
+const buildValitidiesObject = (el: HTMLInputElement, config: ConstraintsConfig) => {
+  const validators: Validities = {
+
+  }
+  for (const key of Object.keys(config) as [keyof ConstraintsConfig]) {
+    validities[key] = validators[key](el)
+  }
+}
 
 @Component({
   directives: {
@@ -15,14 +28,14 @@ export default class ConstraintsMixin extends Vue implements ComponentWithConstr
     this.$constrainedFields = {};
   }
 
-  public bindConstrainedField(name: string, el: HTMLInputElement, constraints: Constraints) {
+  public bindConstrainedField(name: string, el: HTMLInputElement, config: ConstraintsConfig) {
     this.$set(this.$constrainedFields, name, {
       el,
       constraints,
     });
   }
 
-  public updateConstrainedField(name: string, constraints: Constraints) {
+  public updateConstrainedField(name: string, config: ConstraintsConfig) {
     this.$set(this.$constrainedFields[name], 'constraints', constraints);
   }
 

@@ -30,44 +30,41 @@ type ConstraintTypes =
   | 'max'
   | 'step'
   | 'minLength'
-  | 'maxLength'
+  | 'maxLength';
 
-export interface ConstraintAttributes
-  extends Pick<HTMLInputElement, ConstraintTypes> {
+export interface ConstraintAttributes extends Pick<HTMLInputElement, ConstraintTypes> {
   required: 'required' | true;
   type: HTMLInputElementType;
 }
 
-// type Constraints = {
-//   [key in keyof ConstraintAttributes]: ConstraintAttributes[key];
-// }
-
-export type ConstraintOptions = {
-  [key in keyof ConstraintAttributes]?: ConstraintAttributes[key];
-}
-
-export type ConstraintsDiff = {
+export type ConstraintsConfig = {
   [key in keyof ConstraintAttributes]?: ConstraintAttributes[key] | null;
 }
 
-// export interface Constraints extends Partial<ConstraintAttributes> {
-//   [key in ConstraintAttributes]:
-//     | ConstraintAttributes[keyof ConstraintAttributes]
-//     | undefined;
-// }
+export type Validities = {
+  [key in keyof ConstraintsConfig]: boolean
+};
 
 export interface ConstrainedField {
   el: HTMLInputElement;
-  constraints: { [key in ConstraintTypes]: boolean };
+  validities: Validities
 }
 
-export interface ConstrainedFields {
+export type ConstrainedFields = {
   [key: string]: ConstrainedField;
 }
 
 export interface ComponentWithConstrainedFields extends Vue {
   $constrainedFields: ConstrainedFields;
-  bindConstrainedField: (name: string, el: HTMLInputElement, constraints: Constraints) => void;
-  updateConstrainedField: (name: string, constraints: Constraints) => void;
+  bindConstrainedField: (
+    name: string,
+    el: HTMLInputElement,
+    config: ConstraintsConfig
+  ) => void;
+  updateConstrainedField: (name: string, config: ConstraintsConfig) => void;
   unbindConstrainedField: (name: string) => void;
+}
+
+export type Validators = {
+  [key in keyof ConstraintAttributes]: (el: HTMLInputElement) => boolean;
 }

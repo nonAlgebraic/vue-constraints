@@ -1,24 +1,23 @@
 import Vue, { VNode, DirectiveOptions } from 'vue';
-import { ConstraintOptions, ConstraintsDiff, ConstraintAttributes, ComponentWithConstrainedFields } from './types';
-import ConstraintsMixin from './mixin';
+import { ConstraintsConfig, ComponentWithConstrainedFields } from './types';
 
 const diffConstraints = (
-  newObj: ConstraintOptions,
-  oldObj: ConstraintOptions
-): ConstraintOptions | null => {
+  newObj: ConstraintsConfig,
+  oldObj: ConstraintsConfig
+): ConstraintsConfig | null => {
   if (!newObj && !oldObj) {
     return null;
   } else if (newObj && !oldObj) {
     return newObj;
   } else if (!newObj && oldObj) {
-    newObj = {};
-    for (const key of Object.keys(oldObj) as [keyof ConstraintOptions]) {
-      newObj[key] = null;
+    const nullObj: ConstraintsConfig = {};
+    for (const key of Object.keys(oldObj) as [keyof ConstraintsConfig]) {
+      nullObj[key] = null;
     }
-    return newObj;
+    return nullObj;
   }
-  const diff: ConstraintOptions = {};
-  const keys = Object.getOwnPropertyNames(newObj).concat(Object.getOwnPropertyNames(oldObj));
+  const diff: ConstraintsConfig = {};
+  const keys = Object.keys(newObj).concat(Object.keys(oldObj)) as [keyof ConstraintsConfig];
   let isDiff = false;
 
   for (const key of keys) {
@@ -37,11 +36,11 @@ const diffConstraints = (
 
 const constrain = (
   el: HTMLInputElement,
-  constraints: Constraints,
+  config: ConstraintsConfig,
 ) => {
   // TODO: deal with type missing
-  for (const key of Object.keys(constraints) as Array<keyof ConstraintAttributes>)  {
-    const constraint = constraints[key];
+  for (const key of Object.keys(config) as [keyof ConstraintsConfig])  {
+    const constraint = config[key];
 
     if (constraint === null) {
       el.removeAttribute(key);
@@ -69,15 +68,18 @@ const isComponentWithConstrainedFields = (vue?: Vue): vue is ComponentWithConstr
 export default {
   bind: (el, binding, vnode) => {
     if (isHTMLInputElement(el)) {
-      constrain(el, binding.value as Constraints);
+      const constraintsConfig: ConstraintsConfig = binding.value;
+      constrain(el, binding.value);
       if (isComponentWithConstrainedFields(vnode.context)) {
-        vnode.context.bindConstrainedField(el.name, el, binding.value);
+        vnode.context.bindConstrainedField(el.name, el, constraintsConfig);
       }
     }
   },
   update: (el, binding, vnode) => {
     if (isHTMLInputElement(el)) {
-      const diff = diffConstraints(binding.value, binding.oldValue);
+      const newConstraintsConfig: ConstraintsConfig = binding.value;
+      const oldConstraintsConfig: ConstraintsConfig = binding.oldValue;
+      const diff = diffConstraints(newConstraintsConfig, oldConstraintsConfig);
       if (diff) {
         constrain(el, diff);
 
@@ -86,11 +88,11 @@ export default {
         }
       }
     }
-
   },
   unbind: (el, binding, vnode) => {
     if (isHTMLInputElement(el)) {
-      for (const key of Object.keys(binding.value)) {
+      const constraintConfig: ConstraintsConfig = binding.value;
+      for (const key of Object.keys(constraintConfig)) {
         el.removeAttribute(key);
       }
 
