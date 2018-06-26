@@ -58,7 +58,7 @@ const isHTMLInputElement = (el: HTMLElement): el is HTMLInputElement => {
 }
 
 const isComponentWithConstrainedFields = (vue?: Vue): vue is ComponentWithConstrainedFields => {
-  if (vue && vue.$constrainedFields) {
+  if (vue && vue.constrainedFields) {
     return true;
   } else {
     return false;
