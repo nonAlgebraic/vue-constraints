@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit",
+    "tsc": "tsc"
   },
   "dependencies": {
     "vue": "^2.5.16",
@@ -26,7 +27,8 @@
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
     "tslint-config-prettier": "^1.13.0",
-    "vue-template-compiler": "^2.5.16"
+    "vue-template-compiler": "^2.5.16",
+    "vuetify": "^1.0.19"
   },
   "browserslist": [
     "> 1%",

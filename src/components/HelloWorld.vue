@@ -8,7 +8,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import InputText from '@/components/input/InputText.vue';
-import { ConstraintsConfig } from '@/vue-constraints';
+import { Constraints } from '@/vue-constraints';
 
 @Component({
   components: {
@@ -18,7 +18,7 @@ import { ConstraintsConfig } from '@/vue-constraints';
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
   private name: string = '';
-  private constraints: ConstraintsConfig = {
+  private constraints: Constraints = {
     required: true,
     type: 'password',
   };

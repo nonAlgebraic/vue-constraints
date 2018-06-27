@@ -37,18 +37,14 @@ interface ConstraintAttributes extends Pick<HTMLInputElement, ConstraintTypes> {
   type: HTMLInputElementType;
 }
 
-export type ConstraintsConfig = {
-  [key in keyof ConstraintAttributes]?: ConstraintAttributes[key] | null;
-}
-
-export type ValiditiesInterface = {
-  [key in keyof ConstraintAttributes]: boolean;
-}
+export type Constraints = {
+  [key in keyof ConstraintAttributes]?: ConstraintAttributes[key] | null
+};
 
 export interface ConstrainedFieldInterface {
   el: HTMLInputElement;
-  constraints: ConstraintsConfig;
-  validities: ValiditiesInterface
+  constraints: Constraints;
+  validities: Validities;
 }
 
 export interface ConstrainedFields {
@@ -56,16 +52,18 @@ export interface ConstrainedFields {
 }
 
 export interface ComponentWithConstrainedFields extends Vue {
-  constrainedFields: ConstrainedFieldInterface;
+  constrainedFields: ConstrainedFields;
   bindConstrainedField: (
     name: string,
     el: HTMLInputElement,
-    config: ConstraintsConfig
+    config: Constraints
   ) => void;
-  updateConstrainedField: (name: string, config: ConstraintsConfig) => void;
+  updateConstrainedField: (name: string, config: Constraints) => void;
   unbindConstrainedField: (name: string) => void;
 }
 
 export type Validators = {
-  [key in keyof ConstraintAttributes]: keyof ValidityState;
-}
+  [key in keyof ConstraintAttributes]: keyof ValidityState
+};
+
+export type Validities = { [key in keyof Constraints]: boolean };

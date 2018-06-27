@@ -8,5 +8,5 @@ export * from './types';
 export default {
   install(vue: VueConstructor<Vue>) {
     Vue.mixin(ConstraintsMixin);
-  },
+  }
 } as PluginObject<never>;

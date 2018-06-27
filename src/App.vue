@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <img src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your vue-constraints Demo App"/>
+    <HelloWorld msg="Welcome to Your vue-constraints Demo App" />
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import HelloWorld from './components/HelloWorld.vue';
     HelloWorld,
   },
 })
-export default class App extends Vue {}
+export default class App extends Vue { }
 </script>
 
 <style lang="scss">

@@ -3,25 +3,35 @@ import Component from 'vue-class-component';
 import { Prop } from 'vue-property-decorator';
 import ConstraintsDirective from './directive';
 import ConstrainedField from './field';
-import { ComponentWithConstrainedFields, ConstrainedFields, ConstraintsConfig, ConstrainedFieldInterface } from './types';
+import {
+  ComponentWithConstrainedFields,
+  ConstrainedFields,
+  Constraints
+} from './types';
 
 @Component({
   directives: {
-    'constraints': ConstraintsDirective,
+    constraints: ConstraintsDirective
   }
 })
-export default class ConstraintsMixin extends Vue implements ComponentWithConstrainedFields {
+export default class ConstraintsMixin extends Vue
+  implements ComponentWithConstrainedFields {
+  public constrainedFields: ConstrainedFields = {};
 
-  public constrainedFields: ConstrainedFieldInterface = {};
-
-  public bindConstrainedField(name: string, el: HTMLInputElement, config: ConstraintsConfig) {
-    const constrainedFields = new ConstrainedField(el, config)
-    debugger;
-    this.$set(this.constrainedFields, name, constrainedFields);
+  public bindConstrainedField(
+    name: string,
+    el: HTMLInputElement,
+    constraints: Constraints
+  ) {
+    this.$set(
+      this.constrainedFields,
+      name,
+      new ConstrainedField(el, constraints)
+    );
   }
 
-  public updateConstrainedField(name: string, config: ConstraintsConfig) {
-    this.$set(this.constrainedFields[name], 'constraints', config);
+  public updateConstrainedField(name: string, constraints: Constraints) {
+    this.$set(this.constrainedFields[name], 'constraints', constraints);
   }
 
   public unbindConstrainedField(name: string) {
