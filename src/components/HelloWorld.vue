@@ -1,7 +1,8 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <InputText v-model="name" name="name" label="First name" :constraints="constraints" />
+    <InputText v-model="pass" name="pass" label="Password" :constraints="{required: true, minLength: 8}" />
+    <InputText v-model="passConfirm" name="passConfirm" label="Confirm passowrd" :constraints="{required: true, pattern: pass}" />
   </div>
 </template>
 
@@ -17,7 +18,8 @@ import { Constraints } from '@/vue-constraints';
 })
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
-  private name: string = '';
+  private pass: string = '';
+  private passConfirm: string = '';
   private constraints: Constraints = {
     required: true,
     type: 'password',

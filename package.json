@@ -9,12 +9,6 @@
     "test:unit": "vue-cli-service test:unit",
     "tsc": "tsc"
   },
-  "dependencies": {
-    "vue": "^2.5.16",
-    "vue-class-component": "^6.0.0",
-    "vue-property-decorator": "^6.0.0",
-    "vuex": "^3.0.1"
-  },
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/mocha": "^2.2.46",
@@ -22,6 +16,10 @@
     "@vue/cli-plugin-unit-mocha": "^3.0.0-beta.15",
     "@vue/cli-service": "^3.0.0-beta.15",
     "@vue/test-utils": "^1.0.0-beta.16",
+    "vue": "^2.5.16",
+    "vue-class-component": "^6.0.0",
+    "vue-property-decorator": "^6.0.0",
+    "vuex": "^3.0.1",
     "chai": "^4.1.2",
     "lint-staged": "^6.0.0",
     "node-sass": "^4.9.0",
