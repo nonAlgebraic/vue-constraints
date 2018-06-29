@@ -1,69 +1,37 @@
-import Vue from 'vue';
+export type Constrainable = HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement;
 
-type HTMLInputElementType =
-  | 'button'
-  | 'checkbox'
-  | 'color'
-  | 'date'
-  | 'datetime-local'
-  | 'email'
-  | 'file'
-  | 'hidden'
-  | 'image'
-  | 'month'
-  | 'number'
-  | 'password'
-  | 'radio'
-  | 'range'
-  | 'reset'
-  | 'search'
-  | 'submit'
-  | 'tel'
-  | 'text'
-  | 'time'
-  | 'url'
-  | 'week';
+type SelectConstraints = Partial<Pick<HTMLSelectElement, 'required'>>;
 
-type ConstraintTypes =
+type TextAreaConstraints = Partial<Pick<HTMLTextAreaElement, keyof SelectConstraints
+  | 'minLength'
+  | 'maxLength'>>;
+
+type InputConstraints = Partial<Pick<HTMLInputElement, keyof TextAreaConstraints
   | 'pattern'
   | 'min'
   | 'max'
   | 'step'
-  | 'minLength'
-  | 'maxLength';
+  | 'type'>>;
 
-interface ConstraintAttributes extends Pick<HTMLInputElement, ConstraintTypes> {
-  required: 'required' | true;
-  type: HTMLInputElementType;
+export type Constraints<T> =
+  T extends HTMLInputElement ? InputConstraints :
+  T extends HTMLTextAreaElement ? TextAreaConstraints :
+  T extends HTMLSelectElement ? SelectConstraints : never;
+
+
+export interface ConstrainedFieldInterface<T extends Constrainable> {
+  el: T;
+  constraints: Constraints<T>
+  validities: Validities<T>;
 }
-
-export type Constraints = {
-  [key in keyof ConstraintAttributes]?: ConstraintAttributes[key] | null
-};
-
-export interface ConstrainedFieldInterface {
-  el: HTMLInputElement;
-  constraints: Constraints;
-  validities: Validities;
-}
-
 export interface ConstrainedFields {
-  [key: string]: ConstrainedFieldInterface;
-}
-
-export interface ComponentWithConstrainedFields extends Vue {
-  constrainedFields: ConstrainedFields;
-  bindConstrainedField: (
-    name: string,
-    el: HTMLInputElement,
-    config: Constraints
-  ) => void;
-  updateConstrainedField: (name: string, config: Constraints) => void;
-  unbindConstrainedField: (name: string) => void;
+  [key: string]: ConstrainedFieldInterface<Constrainable>;
 }
 
 export type Validators = {
-  [key in keyof ConstraintAttributes]: keyof ValidityState
+  [key in keyof Constraints<Constrainable>]: keyof ValidityState
 };
 
-export type Validities = { [key in keyof Constraints]: boolean };
+export type Validities<T extends Constrainable> = {
+  [key in keyof Constraints<T>]: boolean;
+};

@@ -1,10 +1,9 @@
 import Vue from 'vue';
 import Component from 'vue-class-component';
-import { Prop } from 'vue-property-decorator';
 import ConstraintsDirective from './directive';
 import ConstrainedField from './field';
 import {
-  ComponentWithConstrainedFields,
+  HTMLConstrainableElement,
   ConstrainedFields,
   Constraints
 } from './types';
@@ -14,15 +13,14 @@ import {
     constraints: ConstraintsDirective
   }
 })
-export default class ConstraintsMixin extends Vue
-  implements ComponentWithConstrainedFields {
+export default class ConstraintsMixin extends Vue {
   public constrainedFields: ConstrainedFields = {};
 
-  public bindConstrainedField(
+  public bindConstrainedField = <T extends HTMLConstrainableElement>(
     name: string,
-    el: HTMLInputElement,
-    constraints: Constraints
-  ) {
+    el: T,
+    constraints: Constraints<T>
+  ) => {
     this.$set(
       this.constrainedFields,
       name,
@@ -30,11 +28,11 @@ export default class ConstraintsMixin extends Vue
     );
   }
 
-  public updateConstrainedField(name: string, constraints: Constraints) {
+  public updateConstrainedField = (name: string, constraints: Constraints<HTMLConstrainableElement>) => {
     this.$set(this.constrainedFields[name], 'constraints', constraints);
   }
 
-  public unbindConstrainedField(name: string) {
+  public unbindConstrainedField = (name: string) => {
     this.$set(this.constrainedFields, name, undefined);
   }
 }

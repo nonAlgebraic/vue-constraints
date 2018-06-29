@@ -1,17 +1,16 @@
-import { ConstrainedFieldInterface, Constraints, Validities } from './types';
+import { Constrainable, Constraints, Validities } from './types';
 import getValidities from './getValidities';
 
-export default class ConstrainedField implements ConstrainedFieldInterface {
-  public el: HTMLInputElement;
-  public validities: Validities = {};
-  public constraints: Constraints;
+export default class ConstrainedField<T extends Constrainable> {
+  public el: T;
+  public constraints: Constraints<T>
+  public validities: Validities<T>;
 
-  constructor(el: HTMLInputElement, constraints: Constraints) {
+
+  constructor(el: T, constraints: Constraints<T>) {
     this.el = el;
     this.constraints = constraints;
-    for (const key of Object.keys(constraints) as [keyof Constraints]) {
-      this.validities = getValidities(this.el, this.constraints);
-    }
+    this.validities = getValidities(this.el, this.constraints);
     this.el.addEventListener('input', () => this.updateValidities(), {passive: true})
   }
 

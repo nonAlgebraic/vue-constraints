@@ -1,7 +1,7 @@
-import { Constraints, Validators, Validities } from './types';
+import { Constraints, Validators, Validities, Constrainable } from './types';
 
 export const validators: Validators = {
-  pattern: 'patternMismatch',
+
   min: 'rangeUnderflow',
   max: 'rangeOverflow',
   step: 'stepMismatch',
@@ -11,9 +11,11 @@ export const validators: Validators = {
   type: 'typeMismatch'
 };
 
-export default (el: HTMLInputElement, constraints: Constraints): Validities => {
-  const validities: Validities = {};
-  for (const key of Object.keys(constraints) as [keyof Constraints]) {
+export default <T>(el: T, constraints: Constraints<T>): Validities<T> => {
+  const validities: Validities<T> = {};
+  constraints.
+  for (const key of Object.keys(constraints) as [keyof Constraints<T>]) {
+    validators[key]
     validities[key] = !el.validity[validators[key]];
   }
   return validities;

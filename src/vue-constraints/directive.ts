@@ -1,17 +1,17 @@
 import Vue, { VNode, DirectiveOptions } from 'vue';
-import { Constraints, ComponentWithConstrainedFields } from './types';
+import { Constraints, ComponentWithConstrainedFields, HTMLConstrainableElement } from './types';
 
-const diffConstraints = (
-  newObj: Constraints,
-  oldObj: Constraints
-): Constraints | null => {
+const diffConstraints = <T extends HTMLConstrainableElement>(
+  newObj: Constraints<T>,
+  oldObj: Constraints<T>
+): Constraints<T> | null => {
   if (!newObj && !oldObj) {
     return null;
   } else if (newObj && !oldObj) {
     return newObj;
   } else if (!newObj && oldObj) {
-    const nullObj: Constraints = {};
-    for (const key of Object.keys(oldObj) as [keyof Constraints]) {
+    const nullObj: Constraints<T> = {};
+    for (const key of Object.keys(oldObj) as [keyof Constraints<T>]) {
       nullObj[key] = null;
     }
     return nullObj;
@@ -36,7 +36,7 @@ const diffConstraints = (
   return isDiff ? diff : null;
 };
 
-const constrain = (el: HTMLInputElement, config: Constraints) => {
+const constrain = (el: HTMLConstrainableElement, config: Constraints) => {
   // TODO: deal with type missing
   for (const key of Object.keys(config) as [keyof Constraints]) {
     const constraint = config[key];

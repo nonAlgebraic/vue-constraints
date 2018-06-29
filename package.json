@@ -9,6 +9,9 @@
     "test:unit": "vue-cli-service test:unit",
     "tsc": "tsc"
   },
+  "peerDependencies": {
+    "typescript": "^2.8.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/mocha": "^2.2.46",
