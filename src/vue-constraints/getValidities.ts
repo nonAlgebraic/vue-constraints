@@ -1,22 +1,22 @@
-import { Constraints, Validators, Validities, Constrainable } from './types';
+import { ConstraintAttribute, Constraints, Validities, Constrainable } from './types';
 
-export const validators: Validators = {
-
+const validators: { [key in ConstraintAttribute]: keyof ValidityState } = {
+  required: 'valueMissing',
+  type: 'typeMismatch',
+  pattern: 'patternMismatch',
+  minLength: 'tooShort',
+  maxLength: 'tooLong',
   min: 'rangeUnderflow',
   max: 'rangeOverflow',
   step: 'stepMismatch',
-  minLength: 'tooShort',
-  maxLength: 'tooLong',
-  required: 'valueMissing',
-  type: 'typeMismatch'
 };
 
-export default <T>(el: T, constraints: Constraints<T>): Validities<T> => {
+export default <T extends Constrainable>(el: T, constraints: Constraints<T>): Validities<T> => {
   const validities: Validities<T> = {};
-  constraints.
+
   for (const key of Object.keys(constraints) as [keyof Constraints<T>]) {
-    validators[key]
     validities[key] = !el.validity[validators[key]];
   }
+
   return validities;
 };

@@ -3,9 +3,10 @@ import Component from 'vue-class-component';
 import ConstraintsDirective from './directive';
 import ConstrainedField from './field';
 import {
-  HTMLConstrainableElement,
+  Constrainable,
   ConstrainedFields,
-  Constraints
+  Constraints,
+  SupportsConstrainedFields
 } from './types';
 
 @Component({
@@ -13,26 +14,29 @@ import {
     constraints: ConstraintsDirective
   }
 })
-export default class ConstraintsMixin extends Vue {
-  public constrainedFields: ConstrainedFields = {};
+export default class ConstraintsMixin extends Vue implements SupportsConstrainedFields {
+  readonly constrainedFields: ConstrainedFields = {};
 
-  public bindConstrainedField = <T extends HTMLConstrainableElement>(
-    name: string,
+
+
+  public setConstrainedField<T extends Constrainable>(
     el: T,
     constraints: Constraints<T>
-  ) => {
-    this.$set(
-      this.constrainedFields,
-      name,
-      new ConstrainedField(el, constraints)
-    );
-  }
-
-  public updateConstrainedField = (name: string, constraints: Constraints<HTMLConstrainableElement>) => {
-    this.$set(this.constrainedFields[name], 'constraints', constraints);
-  }
-
-  public unbindConstrainedField = (name: string) => {
-    this.$set(this.constrainedFields, name, undefined);
+  ): void;
+  public setConstrainedField<T extends Constrainable>(el: T): void;
+  public setConstrainedField<T extends Constrainable>(
+    el: T,
+    constraints?: Constraints<T>
+  ) {
+    if (constraints) {
+      if (!this.constrainedFields[el.name]) {
+        this.$set(this.constrainedFields, el.name, new ConstrainedField(el, constraints));
+      } else {
+        this.constrainedFields[el.name].constraints = constraints;
+      }
+    } else if (this.constrainedFields[el.name]) {
+      this.constrainedFields[el.name].destroy();
+      this.$set(this.constrainedFields, el.name, undefined);
+    }
   }
 }
