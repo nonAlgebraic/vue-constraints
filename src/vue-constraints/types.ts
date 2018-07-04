@@ -1,42 +1,49 @@
 import Vue from 'vue';
 import ConstrainedField from './field';
 
-export type Constrainable = HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement;
+export type Constrainable =
+  | HTMLSelectElement
+  | HTMLTextAreaElement
+  | HTMLInputElement;
 
-export type ConstraintAttribute<T extends Constrainable> = Extract<keyof T, 'required'
-  | 'pattern'
-  | 'type'
-  | 'step'
-  | 'min'
-  | 'max'
-  | 'minLength'
-  | 'maxLength'>;
+type ConstraintAttribute<T extends Constrainable> =
+  | 'required'
+  | Extract<
+      keyof T,
+      'pattern' | 'type' | 'step' | 'min' | 'max' | 'minLength' | 'maxLength'
+    >;
 
-type ha = ConstraintAttribute<HTMLSelectElement>;
+export type ConstraintValue<
+  T extends Constrainable,
+  V extends ConstraintAttribute<T>
+> = T[V];
 
 export type Constraints<T extends Constrainable> = {
-  [key in Extract<ConstraintAttribute<T>, keyof T>]?: T[key] | null;
-}
-
-const foobar: Constraints<HTMLSelectElement> = {
-  required: true,
-  maxLength: 0
-}
-
-
-type bar = keyof Extract<keyof HTMLInputElement, keyof HTMLSelectElement>;
-
-const foo: Extract<ConstraintAttribute, keyof Constrainable> = ''
+  [key in ConstraintAttribute<T>]?: ConstraintValue<
+    T,
+    ConstraintAttribute<T>
+  > | null
+};
 
 export type Validities<T extends Constrainable> = {
-  [key in keyof Constraints<T>]?: boolean;
+  [key in ConstraintAttribute<T>]?: boolean
+};
+
+export type Validators = {
+  [key in
+    | ConstraintAttribute<HTMLSelectElement>
+    | ConstraintAttribute<HTMLTextAreaElement>
+    | ConstraintAttribute<HTMLInputElement>]: keyof ValidityState
 };
 
 export interface ConstrainedFields {
-  [key: string]: ConstrainedField<Constrainable>
+  [key: string]: ConstrainedField<Constrainable>;
 }
 
-export interface SupportsConstrainedFields extends Vue {
+export interface ComponentWithConstrainedFields extends Vue {
   readonly constrainedFields: ConstrainedFields;
-  setConstrainedField: <T extends Constrainable>(el: T, constraints?: Constraints<T>) => void;
+  setConstrainedField: <T extends Constrainable>(
+    el: T,
+    constraints?: Constraints<T>
+  ) => void;
 }

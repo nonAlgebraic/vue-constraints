@@ -3,24 +3,28 @@
     <h1>{{ msg }}</h1>
     <InputText v-model="pass" name="pass" label="Password" :constraints="{required: true, minLength: 8}" />
     <InputText v-model="passConfirm" name="passConfirm" label="Confirm passowrd" :constraints="{required: true, pattern: pass}" />
+    <InputRadio v-model="radio" name="radio" label="Foo or Bar?" :constraints="{required: true}" :options="{foo: 'Foo', bar: 'Bar'}" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import InputText from '@/components/input/InputText.vue';
+import InputRadio from '@/components/input/InputRadio.vue';
 import { Constraints } from '@/vue-constraints';
 
 @Component({
   components: {
     InputText,
+    InputRadio,
   },
 })
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
   private pass: string = '';
   private passConfirm: string = '';
-  private constraints: Constraints = {
+  private radio: string = '';
+  private constraints: Constraints<HTMLInputElement> = {
     required: true,
     type: 'password',
   };

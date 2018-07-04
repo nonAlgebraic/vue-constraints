@@ -1,5 +1,10 @@
 import Vue, { VNode, DirectiveOptions } from 'vue';
-import { Constraints, ComponentWithConstrainedFields, Constrainable } from './types';
+import {
+  Constraints,
+  ConstraintValue,
+  Constrainable,
+  ComponentWithConstrainedFields
+} from './types';
 
 const diffConstraints = <T extends Constrainable>(
   newObj: Constraints<T>,
@@ -16,18 +21,13 @@ const diffConstraints = <T extends Constrainable>(
     }
     return nullObj;
   }
-  const diff: Constraints<T> = {};
-  const keys = Object.keys(newObj).concat(Object.keys(oldObj)) as [
-    keyof Constraints<Constrainable>
-  ];
 
-  const ha: Constraints<HTMLSelectElement> = {
-    required: true,
-    maxLength: 3,
-  }
+  const diff: Constraints<T> = {};
   let isDiff = false;
 
-  for (const key of keys) {
+  for (const key of [...Object.keys(newObj), ...Object.keys(oldObj)] as [
+    keyof Constraints<T>
+  ]) {
     if (newObj[key] !== oldObj[key]) {
       isDiff = true;
       if (typeof newObj[key] === 'undefined') {
@@ -41,27 +41,36 @@ const diffConstraints = <T extends Constrainable>(
   return isDiff ? diff : null;
 };
 
+const isConstraintValue = <T extends Constrainable>(
+  val: Constraints<T>[keyof Constraints<T>]
+): val is ConstraintValue<T, keyof Constraints<T>> => {
+  if (val !== null && typeof val !== 'undefined') {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 const constrain = <T extends Constrainable>(el: T, config: Constraints<T>) => {
   // TODO: deal with type missing
-  for (const key of Object.keys(config) as [keyof typeof config]) {
-    const constraint: Constraints<T>['required'] = config[key];
-
-    if (typeof constraint === null) {
+  for (const key of Object.keys(config) as [keyof Constraints<T>]) {
+    const constraint = config[key];
+    if (isConstraintValue(constraint)) {
+      el[key] = constraint;
+    } else {
       el.removeAttribute(key);
-    } else if (typeof constraint !== 'undefined') {
-      el[key] = constraint;
-    } else if (constraint) {
-      el[key] = constraint;
     }
   }
 };
 
 const isConstrainable = (el: HTMLElement): el is Constrainable => {
-  if (!(
-    el instanceof HTMLInputElement ||
-    el instanceof HTMLTextAreaElement ||
-    el instanceof HTMLSelectElement
-  )) {
+  if (
+    !(
+      el instanceof HTMLInputElement ||
+      el instanceof HTMLTextAreaElement ||
+      el instanceof HTMLSelectElement
+    )
+  ) {
     throw new TypeError(`element ${el} is not an HTMLInputElement!`);
   }
 
@@ -84,7 +93,7 @@ export default {
       const constraints: Constraints<typeof el> = binding.value;
       constrain(el, binding.value);
       if (isComponentWithConstrainedFields(vnode.context)) {
-        vnode.context.bindConstrainedField(el.name, el, constraints);
+        vnode.context.setConstrainedField(el, constraints);
       }
     }
   },
@@ -97,7 +106,7 @@ export default {
         constrain(el, diff);
 
         if (isComponentWithConstrainedFields(vnode.context)) {
-          vnode.context.updateConstrainedField(el.name, diff);
+          vnode.context.setConstrainedField(el, newConstraints);
         }
       }
     }
@@ -110,7 +119,7 @@ export default {
       }
 
       if (isComponentWithConstrainedFields(vnode.context)) {
-        vnode.context.unbindConstrainedField(el.name);
+        vnode.context.setConstrainedField(el);
       }
     }
   }

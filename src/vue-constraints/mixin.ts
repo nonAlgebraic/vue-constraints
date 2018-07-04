@@ -6,7 +6,7 @@ import {
   Constrainable,
   ConstrainedFields,
   Constraints,
-  SupportsConstrainedFields
+  ComponentWithConstrainedFields
 } from './types';
 
 @Component({
@@ -14,23 +14,21 @@ import {
     constraints: ConstraintsDirective
   }
 })
-export default class ConstraintsMixin extends Vue implements SupportsConstrainedFields {
-  readonly constrainedFields: ConstrainedFields = {};
+export default class ConstraintsMixin extends Vue
+  implements ComponentWithConstrainedFields {
+  public readonly constrainedFields: ConstrainedFields = {};
 
-
-
-  public setConstrainedField<T extends Constrainable>(
-    el: T,
-    constraints: Constraints<T>
-  ): void;
-  public setConstrainedField<T extends Constrainable>(el: T): void;
   public setConstrainedField<T extends Constrainable>(
     el: T,
     constraints?: Constraints<T>
   ) {
     if (constraints) {
       if (!this.constrainedFields[el.name]) {
-        this.$set(this.constrainedFields, el.name, new ConstrainedField(el, constraints));
+        this.$set(
+          this.constrainedFields,
+          el.name,
+          new ConstrainedField(el, constraints)
+        );
       } else {
         this.constrainedFields[el.name].constraints = constraints;
       }

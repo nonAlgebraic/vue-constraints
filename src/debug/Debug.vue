@@ -1,19 +1,21 @@
 <template>
   <div class="constraints-debug">
-    <v-data-table
-    v-for="(field, index) in fieldsArray"
-    :key="index"
-    :headers="headers"
-    :items="field.constraints"
-    hide-actions
-    class="constrained-field elevation-1"
-  >
-    <template slot="items" slot-scope="props">
-      <td>{{ props.item.constraint }}</td>
-      <td>{{ props.item.config }}</td>
-      <td>{{ props.item.validity }}</td>
-    </template>
-  </v-data-table>
+    <v-card v-for="(field, index) in fieldsArray" :key="index">
+      <v-card-title>{{ field.name }}</v-card-title>
+
+      <v-data-table
+        :headers="headers"
+        :items="field.constraints"
+        hide-actions
+        class="constrained-field elevation-1"
+      >
+        <template slot="items" slot-scope="props">
+          <td>{{ props.item.constraint }}</td>
+          <td>{{ props.item.config }}</td>
+          <td>{{ props.item.validity }}</td>
+        </template>
+      </v-data-table>
+    </v-card>
   </div>
 </template>
 
@@ -48,9 +50,10 @@ export default class ConstraintsDebug extends Vue {
 
   private get fieldsArray() {
     const fields = [];
-    for (const field in this.fields) {
+    for (const field of Object.keys(this.fields)) {
+      const el = this.fields[field].el
       const constraints = [];
-      for (const constraint of Object.keys(this.fields[field].constraints) as [keyof Constraints]) {
+      for (const constraint of Object.keys(this.fields[field].constraints) as [keyof Constraints<typeof el>]) {
         constraints.push({
           constraint,
           config: this.fields[field].constraints[constraint],
@@ -60,7 +63,7 @@ export default class ConstraintsDebug extends Vue {
 
       fields.push({
         name: field,
-        constraints: constraints,
+        constraints,
       });
     }
     return fields;
@@ -75,9 +78,7 @@ export default class ConstraintsDebug extends Vue {
   left: 20px
   max-width: 500px
   text-align: left
-  font-family: monospace
 
-
-
-
+  tbody
+    font-family: monospace
 </style>
