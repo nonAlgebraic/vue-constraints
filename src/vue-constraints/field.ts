@@ -5,11 +5,12 @@ export default class ConstrainedField<T extends Constrainable> {
   public readonly el: T;
   private _validities!: Validities<T>;
   private _constraints!: Constraints<T>;
+  private listens: T[] = [];
 
   constructor(el: T, constraints: Constraints<T>) {
     this.el = el;
     this.constraints = constraints;
-    this.el.addEventListener('input', this.updateValidities, { passive: true });
+    this.addListener(el);
   }
 
   public get constraints() {
@@ -26,10 +27,19 @@ export default class ConstrainedField<T extends Constrainable> {
   }
 
   public destroy = () => {
-    this.el.removeEventListener('input', this.updateValidities);
+    this.listens.map(el => this.removeListener(el));
   }
 
-  private updateValidities = () => {
+  public updateValidities = () => {
     this._validities = getValidities(this.el, this._constraints);
+  }
+
+  public addListener = (el: T) => {
+    el.addEventListener('input', this.updateValidities, { passive: true });
+    this.listens.push(el);
+  }
+
+  public removeListener = (el: T) => {
+    el.removeEventListener('input', this.updateValidities);
   }
 }

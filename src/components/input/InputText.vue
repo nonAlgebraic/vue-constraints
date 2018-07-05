@@ -16,7 +16,6 @@ import { ConstraintsMixin } from '@/vue-constraints';
 export default class InputText extends mixins(InputMixin) {}
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
 
 </style>

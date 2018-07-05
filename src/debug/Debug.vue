@@ -10,9 +10,11 @@
         class="constrained-field elevation-1"
       >
         <template slot="items" slot-scope="props">
-          <td>{{ props.item.constraint }}</td>
-          <td>{{ props.item.config }}</td>
-          <td>{{ props.item.validity }}</td>
+          <tr :class="{invalid: !props.item.validity}">
+            <td>{{ props.item.constraint }}</td>
+            <td>{{ props.item.config }}</td>
+            <td>{{ props.item.validity }}</td>
+          </tr>
         </template>
       </v-data-table>
     </v-card>
@@ -71,7 +73,6 @@ export default class ConstraintsDebug extends Vue {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass" scpoped>
 .constraints-debug
   top: 20px
@@ -81,4 +82,7 @@ export default class ConstraintsDebug extends Vue {
 
   tbody
     font-family: monospace
+
+  tr.invalid td:last-child
+    background-color: rgba(#f00, .3)
 </style>

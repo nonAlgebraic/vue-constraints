@@ -29,12 +29,22 @@ export default class ConstraintsMixin extends Vue
           el.name,
           new ConstrainedField(el, constraints)
         );
-      } else {
+      } else if (this.constrainedFields[el.name].el === el) {
         this.constrainedFields[el.name].constraints = constraints;
+      } else {
+        this.constrainedFields[el.name].addListener(el);
       }
-    } else if (this.constrainedFields[el.name]) {
+    } else if (this.constrainedFields[el.name].el === el) {
       this.constrainedFields[el.name].destroy();
       this.$set(this.constrainedFields, el.name, undefined);
+    } else {
+      this.constrainedFields[el.name].removeListener(el);
+    }
+  }
+
+  public mounted() {
+    for (const key of Object.keys(this.constrainedFields)) {
+      this.constrainedFields[key].updateValidities();
     }
   }
 }
