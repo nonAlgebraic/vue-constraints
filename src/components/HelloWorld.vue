@@ -1,8 +1,9 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <InputText v-model="pass" name="pass" label="Password" :constraints="{required: true, minLength: 8}" />
+    <InputText v-model="pass" name="pass" label="Password" :constraints="{required: true, minLength: 8, maxLength: 10}" />
     <InputText v-model="passConfirm" name="passConfirm" label="Confirm passowrd" :constraints="{required: true, pattern: pass}" />
+    <InputText v-model="passConfirm" name="email" label="Email" :constraints="{required: true, type: 'email', minLength: 20}" />
     <InputRadio v-model="radio" name="radio" label="Foo or Bar?" :constraints="{required: true}" :options="{foo: 'Foo', bar: 'Bar'}" />
   </div>
 </template>
@@ -23,11 +24,8 @@ export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
   private pass: string = '';
   private passConfirm: string = '';
+  private email: string = '';
   private radio: string = '';
-  private constraints: Constraints<HTMLInputElement> = {
-    required: true,
-    type: 'password',
-  };
 }
 </script>
 

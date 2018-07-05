@@ -44,7 +44,7 @@ export default class ConstraintsMixin extends Vue
 
   public mounted() {
     for (const key of Object.keys(this.constrainedFields)) {
-      this.constrainedFields[key].updateValidities();
+      this.constrainedFields[key].refreshValidities();
     }
   }
 }

@@ -10,7 +10,7 @@
         class="constrained-field elevation-1"
       >
         <template slot="items" slot-scope="props">
-          <tr :class="{invalid: !props.item.validity}">
+          <tr :class="{invalid: !props.item.validity, valid: props.item.validity}">
             <td>{{ props.item.constraint }}</td>
             <td>{{ props.item.config }}</td>
             <td>{{ props.item.validity }}</td>
@@ -83,6 +83,7 @@ export default class ConstraintsDebug extends Vue {
   tbody
     font-family: monospace
 
-  tr.invalid td:last-child
+  tr.invalid td
     background-color: rgba(#f00, .3)
+
 </style>

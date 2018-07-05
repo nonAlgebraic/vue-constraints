@@ -16,7 +16,7 @@ type ConstraintAttribute<T extends Constrainable> =
 export type ConstraintValue<
   T extends Constrainable,
   V extends ConstraintAttribute<T>
-> = T[V];
+> = T[V] | { }
 
 export type Constraints<T extends Constrainable> = {
   [key in ConstraintAttribute<T>]?: ConstraintValue<
