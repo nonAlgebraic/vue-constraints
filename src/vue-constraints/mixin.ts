@@ -6,6 +6,8 @@ import {
   Constrainable,
   ConstrainedFields,
   Constraints,
+  NormalizedConfig,
+  ErrorMessages,
   ComponentWithConstrainedFields
 } from './types';
 
@@ -20,17 +22,17 @@ export default class ConstraintsMixin extends Vue
 
   public setConstrainedField<T extends Constrainable>(
     el: T,
-    constraints?: Constraints<T>
+    config?: NormalizedConfig<T>,
   ) {
-    if (constraints) {
+    if (config) {
       if (!this.constrainedFields[el.name]) {
         this.$set(
           this.constrainedFields,
           el.name,
-          new ConstrainedField(el, constraints)
+          new ConstrainedField(el, config)
         );
       } else if (this.constrainedFields[el.name].el === el) {
-        this.constrainedFields[el.name].constraints = constraints;
+        this.constrainedFields[el.name].config = config;
       } else {
         this.constrainedFields[el.name].addListener(el);
       }

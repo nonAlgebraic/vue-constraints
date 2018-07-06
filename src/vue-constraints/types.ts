@@ -13,17 +13,31 @@ type ConstraintAttribute<T extends Constrainable> =
       'pattern' | 'type' | 'step' | 'min' | 'max' | 'minLength' | 'maxLength'
     >;
 
-export type ConstraintValue<
+export type Constraint<T extends Constrainable, V extends ConstraintAttribute<T>> = T[V];
+
+export interface ConfigObject<
   T extends Constrainable,
   V extends ConstraintAttribute<T>
-> = T[V] | { }
+> {
+  constraint: Constraint<T, V>
+  errorMessage?: string;
+}
 
-export type Constraints<T extends Constrainable> = {
-  [key in ConstraintAttribute<T>]?: ConstraintValue<
-    T,
-    ConstraintAttribute<T>
-  > | null
+type NullableConfigObject<T extends Constrainable, V extends ConstraintAttribute<T>> = {
+  [key in keyof ConfigObject<T, V>]: ConfigObject<T, V>[key] | null;
+}
+
+export type Config<T extends Constrainable> = {
+  [key in keyof NormalizedConfig<T>]?: NormalizedConfig<T>[key] | Constraint<T, key>;
 };
+
+export type NormalizedConfig<T extends Constrainable> = {
+  [key in ConstraintAttribute<T>]?: ConfigObject<T, key>;
+}
+
+export type NullableConfig<T extends Constrainable> = {
+  [key in keyof NormalizedConfig<T>]?: NullableConfigObject<T, key> | null;
+}
 
 export type Validities<T extends Constrainable> = {
   [key in ConstraintAttribute<T>]?: boolean
@@ -44,6 +58,6 @@ export interface ComponentWithConstrainedFields extends Vue {
   readonly constrainedFields: ConstrainedFields;
   setConstrainedField: <T extends Constrainable>(
     el: T,
-    constraints?: Constraints<T>
+    config?: NormalizedConfig<T>
   ) => void;
 }

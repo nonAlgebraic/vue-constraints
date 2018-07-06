@@ -1,4 +1,4 @@
-import { Constrainable, Constraints, Validators, Validities } from './types';
+import { Constrainable, Constraints, NormalizedConfig, ErrorMessages, Validators, Validities } from './types';
 
 const validators: Validators = {
   required: 'valueMissing',
@@ -13,29 +13,23 @@ const validators: Validators = {
 
 export default class ConstrainedField<T extends Constrainable> {
   public readonly el: T;
-  public isTouched = false;
-  public isDirty = false;
-  private _validities!: Validities<T>;
-  private _constraints!: Constraints<T>;
-  private listens: T[] = [];
-  private _isValid!: boolean;
 
-  constructor(el: T, constraints: Constraints<T>) {
+  private _config!: NormalizedConfig<T>;
+  private _validities!: Validities<T>;
+  private listens: T[] = [];
+
+  constructor(el: T, config: NormalizedConfig<T>) {
     this.el = el;
-    this.constraints = constraints;
+    this.config = config;
     this.addListener(el);
   }
 
-  public get isValid() {
-    return this._isValid;
+  public get config() {
+    return this._config;
   }
 
-  public get constraints() {
-    return this._constraints;
-  }
-
-  public set constraints(constraints: Constraints<T>) {
-    this._constraints = constraints;
+  public set config(config: NormalizedConfig<T>) {
+    this._config = config;
     this.refreshValidities();
   }
 
@@ -58,11 +52,10 @@ export default class ConstrainedField<T extends Constrainable> {
 
   public refreshValidities = () => {
     const validities: Validities<T> = {};
-    for (const key of Object.keys(this._constraints) as [keyof Constraints<T>]) {
+    for (const key of Object.keys(this._config.constraints) as [keyof Constraints<T>]) {
       validities[key] = !this.el.validity[validators[key]];
     }
 
     this._validities = validities;
-    this._isValid = this.el.validity.valid;
   }
 }
