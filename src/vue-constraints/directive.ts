@@ -1,67 +1,24 @@
 import Vue, { VNode, DirectiveOptions } from 'vue';
+import { diff } from 'deep-object-diff';
 import {
   Constraints,
-  ErrorMessages,
+  DirectiveConfig,
   Config,
-  NullableConfig,
-  ConfigObject,
-  NullableConstraints,
-  NullableErrorMessages,
+  Diff,
+  DirectiveConfigObject,
   Constraint,
+  ErrorMessages,
   Constrainable,
   ComponentWithConstrainedFields,
-  NormalizedConfig
 } from './types';
-
-const diffConfigs = <T extends Constrainable>(
-  newConfig: NormalizedConfig<T>,
-  oldConfig: NormalizedConfig<T>
-): NullableConfig<T> | null => {
-  if (!newConfig && !oldConfig) {
-    return null;
-  }
-  if (newConfig && !oldConfig) {
-    return newConfig;
-  }
-
-  const diff: NullableConfig<T> = {};
-
-  if (!newConfig && oldConfig) {
-    for (const key of Object.keys(oldConfig) as [keyof typeof oldConfig]) {
-      diff[key] = null;
-    }
-
-    return diff;
-  }
-
-  let isDiff = false;
-  for (const key of [...Object.keys(newConfig), ...Object.keys(oldConfig)] as [
-    keyof typeof newConfig
-  ]) {
-    const configObject = newConfig[key];
-    if (isConfigObject(configObject)) {
-      configObject.
-    }
-    // if (newConfig[key]. !== oldConfig.constraints[key]) {
-    //   isDiff = true;
-    //   if (typeof newConfig.constraints[key] === 'undefined') {
-    //     diff.constraints[key] = null;
-    //   } else {
-    //     diff.constraints[key] = newConfig.constraints[key];
-    //   }
-    // }
-  }
-
-  return isDiff ? diff : null;
-};
 
 const isConstraint = <T extends Constrainable, V extends keyof Config<T>>(
   val: Config<T>[V]
 ): val is Constraint<T, V> => typeof val !== null;
 
-const constrain = <T extends Constrainable>(el: T, config: NormalizedConfig<T>) => {
+const constrain = <T extends Constrainable>(el: T, constraints: Constraints<T>) => {
   // TODO: deal with type missing
-  for (const key of Object.keys(config) as [keyof typeof config]) {
+  for (const key of Object.keys(constraints) as [keyof typeof constraints]) {
     const constraint = constraints[key];
     if (isConstraint(constraint)) {
       el[key] = constraint;
@@ -95,17 +52,25 @@ const isComponentWithConstrainedFields = (
   }
 };
 
-const isConfigObject = <T extends Constrainable, V extends keyof Config<T>>(val: Config<T>[V]): val is ConfigObject<T, V> => typeof val === 'object';
+const isDirectiveConfigObject = <T extends Constrainable, V extends keyof DirectiveConfig<T>>(val: DirectiveConfig<T>[V]): val is DirectiveConfigObject<T, V> => typeof val === 'object';
 
-const normalizeConfig = <T extends Constrainable>(config: Config<T>): NormalizedConfig<T> => {
-  const normalizedConfig: NormalizedConfig<T> = {};
+const normalizeConfig = <T extends Constrainable>(config: DirectiveConfig<T>): Config<T> => {
+  const normalizedConfig: Config<T> = { constraints: {} };
+  const errorMessages: ErrorMessages<T> = {};
+  let hasErrorMessages = false;
   for (const key of Object.keys(config) as [keyof typeof config]) {
     const val = config[key];
-    if (isConfigObject(val)) {
-      normalizedConfig[key] = {constraint: val.constraint, errorMessage: val.errorMessage};
-    } else if (isConstraint(val)) {
-      normalizedConfig[key] = {constraint: val}
+    if (isDirectiveConfigObject(val)) {
+      normalizedConfig.constraints[key] = val.constraint;
+      errorMessages[key] = val.errorMessage;
+      hasErrorMessages = true;
+    } else {
+      normalizedConfig.constraints[key] = val;
     }
+  }
+
+  if (hasErrorMessages) {
+    normalizedConfig.errorMessages = errorMessages;
   }
 
   return normalizedConfig;
@@ -114,19 +79,22 @@ const normalizeConfig = <T extends Constrainable>(config: Config<T>): Normalized
 export default {
   bind: (el, binding, vnode) => {
     if (isConstrainable(el)) {
-      const config = normalizeConfig(binding.value as Config<typeof el>);
+      const config = normalizeConfig(binding.value as DirectiveConfig<typeof el>);
 
       constrain(el, config);
       if (isComponentWithConstrainedFields(vnode.context)) {
         vnode.context.setConstrainedField(el, config);
       }
-    }
+    }4
   },
   update: (el, binding, vnode) => {
     if (isConstrainable(el)) {
-      const newConfig = normalizeConfig(binding.value as Config<typeof el>);
-      const oldConfig = normalizeConfig(binding.oldValue as Config<typeof el>);
-      const diff = diffConfigs(newConfig, oldConfig);
+      const newConfig = normalizeConfig(binding.value as DirectiveConfig<typeof el>);
+      const oldConfig = normalizeConfig(binding.oldValue as DirectiveConfig<typeof el>);
+      const theDiff = diff(oldConfig, newConfig) as Diff<Config<typeof el>>;
+      if (theDiff.constraints) {
+        constrain(el, theDiff.constraints);
+      }
       if (diff) {
         constrain(el, diff);
 

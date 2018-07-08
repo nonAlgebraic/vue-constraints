@@ -1,6 +1,12 @@
 import Vue from 'vue';
 import ConstrainedField from './field';
 
+export type Diff<T extends object> = {
+  [P in keyof T]: T[P] extends object ? Diff<T[P]> | undefined : T[P] | undefined;
+}
+
+type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]
+
 export type Constrainable =
   | HTMLSelectElement
   | HTMLTextAreaElement
@@ -15,33 +21,34 @@ type ConstraintAttribute<T extends Constrainable> =
 
 export type Constraint<T extends Constrainable, V extends ConstraintAttribute<T>> = T[V];
 
-export interface ConfigObject<
+export interface DirectiveConfigObject<
   T extends Constrainable,
   V extends ConstraintAttribute<T>
 > {
   constraint: Constraint<T, V>
-  errorMessage?: string;
+  errorMessage: string;
 }
 
-type NullableConfigObject<T extends Constrainable, V extends ConstraintAttribute<T>> = {
-  [key in keyof ConfigObject<T, V>]: ConfigObject<T, V>[key] | null;
+export type Constraints<T extends Constrainable> = AtLeastOne<{
+  [key in ConstraintAttribute<T>]: Constraint<T, key>
+}>
+
+export type ErrorMessages<T extends Constrainable> = AtLeastOne<{
+  [key in ConstraintAttribute<T>]: string;
+}>
+
+export type DirectiveConfig<T extends Constrainable> = AtLeastOne<{
+  [key in ConstraintAttribute<T>]?: DirectiveConfigObject<T, key> | Constraint<T, key>;
+}>;
+
+export interface Config<T extends Constrainable> {
+  constraints: Constraints<T>;
+  errorMessages?: ErrorMessages<T>;
 }
 
-export type Config<T extends Constrainable> = {
-  [key in keyof NormalizedConfig<T>]?: NormalizedConfig<T>[key] | Constraint<T, key>;
-};
-
-export type NormalizedConfig<T extends Constrainable> = {
-  [key in ConstraintAttribute<T>]?: ConfigObject<T, key>;
-}
-
-export type NullableConfig<T extends Constrainable> = {
-  [key in keyof NormalizedConfig<T>]?: NullableConfigObject<T, key> | null;
-}
-
-export type Validities<T extends Constrainable> = {
+export type Validities<T extends Constrainable> = AtLeastOne<{
   [key in ConstraintAttribute<T>]?: boolean
-};
+}>;
 
 export type Validators = {
   [key in
@@ -50,14 +57,14 @@ export type Validators = {
     | ConstraintAttribute<HTMLInputElement>]: keyof ValidityState
 };
 
-export interface ConstrainedFields {
+export type ConstrainedFields = AtLeastOne<{
   [key: string]: ConstrainedField<Constrainable>;
-}
+}>;
 
 export interface ComponentWithConstrainedFields extends Vue {
   readonly constrainedFields: ConstrainedFields;
   setConstrainedField: <T extends Constrainable>(
     el: T,
-    config?: NormalizedConfig<T>
+    config?: Config<T>
   ) => void;
 }

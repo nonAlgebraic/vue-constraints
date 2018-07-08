@@ -1,4 +1,4 @@
-import { Constrainable, Constraints, NormalizedConfig, ErrorMessages, Validators, Validities } from './types';
+import { Constrainable, Constraints, Config, ErrorMessages, Validators, Validities } from './types';
 
 const validators: Validators = {
   required: 'valueMissing',
@@ -14,11 +14,11 @@ const validators: Validators = {
 export default class ConstrainedField<T extends Constrainable> {
   public readonly el: T;
 
-  private _config!: NormalizedConfig<T>;
+  private _config!: Config<T>;
   private _validities!: Validities<T>;
   private listens: T[] = [];
 
-  constructor(el: T, config: NormalizedConfig<T>) {
+  constructor(el: T, config: Config<T>) {
     this.el = el;
     this.config = config;
     this.addListener(el);
@@ -28,7 +28,7 @@ export default class ConstrainedField<T extends Constrainable> {
     return this._config;
   }
 
-  public set config(config: NormalizedConfig<T>) {
+  public set config(config: Config<T>) {
     this._config = config;
     this.refreshValidities();
   }
