@@ -1,10 +1,10 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <InputText v-model="pass" name="pass" label="Password" :constraints="{required: true, minLength: 8, maxLength: 10}" />
-    <InputText v-model="passConfirm" name="passConfirm" label="Confirm passowrd" :constraints="{required: true, pattern: pass}" />
-    <InputText v-model="passConfirm" name="email" label="Email" :constraints="{required: true, type: 'email', minLength: 20}" />
-    <InputRadio v-model="radio" name="radio" label="Foo or Bar?" :constraints="{required: true}" :options="{foo: 'Foo', bar: 'Bar'}" />
+    <InputText v-model="pass" name="pass" label="Password" :constraints="passConstraints" />
+    <InputText v-model="passConfirm" name="passConfirm" label="Confirm passowrd" :constraints="passConfirmConstraints" />
+    <InputText v-model="email" name="email" label="Email" :constraints="emailConstraints" />
+    <InputRadio v-model="radio" name="radio" label="Foo or Bar?" :constraints="radioConstraints" :options="{foo: 'Foo', bar: 'Bar'}" />
   </div>
 </template>
 
@@ -12,7 +12,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import InputText from '@/components/input/InputText.vue';
 import InputRadio from '@/components/input/InputRadio.vue';
-import { Constraints } from '@/vue-constraints';
+import { ConstraintsConfig } from '@/vue-constraints';
 
 @Component({
   components: {
@@ -26,6 +26,24 @@ export default class HelloWorld extends Vue {
   private passConfirm: string = '';
   private email: string = '';
   private radio: string = '';
+  private passConstraints: ConstraintsConfig<HTMLInputElement> = {
+    required: true,
+    minLength: 8,
+    maxLength: 10,
+  };
+  private passConfirmConstraints: ConstraintsConfig<HTMLInputElement> = {
+    required: true,
+    pattern: this.pass,
+  };
+  private emailConstraints: ConstraintsConfig<HTMLInputElement> = {
+    required: true,
+    type: 'email',
+    minLength: 20,
+  };
+
+  private radioConstraints: ConstraintsConfig<HTMLInputElement> = {
+    required: true,
+  };
 }
 </script>
 

@@ -1,4 +1,11 @@
-import { Constrainable, Constraints, Config, ErrorMessages, Validators, Validities } from './types';
+import {
+  Constrainable,
+  Constraints,
+  Config,
+  ErrorMessages,
+  Validators,
+  Validities
+} from './types';
 
 const validators: Validators = {
   required: 'valueMissing',
@@ -39,23 +46,25 @@ export default class ConstrainedField<T extends Constrainable> {
 
   public destroy = () => {
     this.listens.map(el => this.removeListener(el));
-  }
+  };
 
   public addListener = (el: T) => {
     el.addEventListener('input', this.refreshValidities, { passive: true });
     this.listens.push(el);
-  }
+  };
 
   public removeListener = (el: T) => {
     el.removeEventListener('input', this.refreshValidities);
-  }
+  };
 
   public refreshValidities = () => {
     const validities: Validities<T> = {};
-    for (const key of Object.keys(this._config.constraints) as [keyof Constraints<T>]) {
+    for (const key of Object.keys(this._config.constraints) as [
+      keyof Constraints<T>
+    ]) {
       validities[key] = !this.el.validity[validators[key]];
     }
 
     this._validities = validities;
-  }
+  };
 }

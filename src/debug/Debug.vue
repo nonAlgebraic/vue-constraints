@@ -55,10 +55,10 @@ export default class ConstraintsDebug extends Vue {
     for (const field of Object.keys(this.fields)) {
       const el = this.fields[field].el
       const constraints = [];
-      for (const constraint of Object.keys(this.fields[field].constraints) as [keyof Constraints<typeof el>]) {
+      for (const constraint of Object.keys(this.fields[field].config.constraints) as [keyof Constraints<typeof el>]) {
         constraints.push({
           constraint,
-          config: this.fields[field].constraints[constraint],
+          config: this.fields[field].config.constraints[constraint],
           validity: this.fields[field].validities[constraint],
         });
       }

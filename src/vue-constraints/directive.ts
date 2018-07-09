@@ -1,105 +1,92 @@
-import Vue, { VNode, DirectiveOptions } from 'vue';
-import { diff } from 'deep-object-diff';
+import Vue, { VNodeDirective, DirectiveOptions } from 'vue';
+import { diff as doDiff } from 'deep-object-diff';
 import {
   Constraints,
-  DirectiveConfig,
+  ConstraintsConfig,
   Config,
   Diff,
-  DirectiveConfigObject,
   Constraint,
-  ErrorMessages,
   Constrainable,
-  ComponentWithConstrainedFields,
 } from './types';
+import { isConstrainable, isConstraintAttribute, isConstraintsConfigObject, isConstraint, isComponentWithConstrainedFields } from './guards';
 
-const isConstraint = <T extends Constrainable, V extends keyof Config<T>>(
-  val: Config<T>[V]
-): val is Constraint<T, V> => typeof val !== null;
 
-const constrain = <T extends Constrainable>(el: T, constraints: Constraints<T>) => {
+
+const constrain = <T extends Constrainable>(
+  el: T,
+  constraints: Diff<Constraints<T>>
+) => {
   // TODO: deal with type missing
   for (const key of Object.keys(constraints) as [keyof typeof constraints]) {
     const constraint = constraints[key];
-    if (isConstraint(constraint)) {
-      el[key] = constraint;
+    if (typeof constraint !== 'undefined') {
+      el[key] = constraint as Constraint<T, typeof key>;
     } else {
       el.removeAttribute(key);
     }
   }
 };
 
-const isConstrainable = (el: HTMLElement): el is Constrainable => {
-  if (
-    !(
-      el instanceof HTMLInputElement ||
-      el instanceof HTMLTextAreaElement ||
-      el instanceof HTMLSelectElement
-    )
-  ) {
-    throw new TypeError(`element ${el} is not an HTMLInputElement!`);
-  }
+const normalizeConfig = <T extends Constrainable>(
+  config: any,
+  el: T
+): Config<T> | undefined => {
+  if (typeof config === 'object') {
+    const keys = Object.keys(config);
+    if (keys.length >=1 ) {
+      const normalizedConfig: Config<T> = { constraints: {}, errorMessages: {} };
+      for (const key of keys) {
+        if (isConstraintAttribute(key, el, true)) {
+          const val = config[key];
+          if (isConstraintsConfigObject(val, key, el)) {
+            normalizedConfig.constraints[key] = val.constraint;
+            normalizedConfig.errorMessages[key] = val.errorMessage;
+          } else if (isConstraint(val, key, el)){
+            normalizedConfig.constraints[key] = val;
+          } else {
+            throw new TypeError(`Config object property values must be either "string" or "{constraint: string, errorMessage?: string}", but ${val} was provided for property ${key}`);
+          }
+        }
+      }
 
-  return true;
-};
-
-const isComponentWithConstrainedFields = (
-  vue?: Vue
-): vue is ComponentWithConstrainedFields => {
-  if (vue && vue.constrainedFields) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-const isDirectiveConfigObject = <T extends Constrainable, V extends keyof DirectiveConfig<T>>(val: DirectiveConfig<T>[V]): val is DirectiveConfigObject<T, V> => typeof val === 'object';
-
-const normalizeConfig = <T extends Constrainable>(config: DirectiveConfig<T>): Config<T> => {
-  const normalizedConfig: Config<T> = { constraints: {} };
-  const errorMessages: ErrorMessages<T> = {};
-  let hasErrorMessages = false;
-  for (const key of Object.keys(config) as [keyof typeof config]) {
-    const val = config[key];
-    if (isDirectiveConfigObject(val)) {
-      normalizedConfig.constraints[key] = val.constraint;
-      errorMessages[key] = val.errorMessage;
-      hasErrorMessages = true;
+      return normalizedConfig;
     } else {
-      normalizedConfig.constraints[key] = val;
+      throw new TypeError(`Constraints directive must be provided a valid config object, but an empty object was provided.`);
     }
+  } else {
+    throw new TypeError(`Constraints directive must be passed a config object, but ${typeof config} was provided.`);
   }
-
-  if (hasErrorMessages) {
-    normalizedConfig.errorMessages = errorMessages;
-  }
-
-  return normalizedConfig;
-}
+};
 
 export default {
   bind: (el, binding, vnode) => {
-    if (isConstrainable(el)) {
-      const config = normalizeConfig(binding.value as DirectiveConfig<typeof el>);
-
-      constrain(el, config);
-      if (isComponentWithConstrainedFields(vnode.context)) {
-        vnode.context.setConstrainedField(el, config);
-      }
-    }4
-  },
-  update: (el, binding, vnode) => {
-    if (isConstrainable(el)) {
-      const newConfig = normalizeConfig(binding.value as DirectiveConfig<typeof el>);
-      const oldConfig = normalizeConfig(binding.oldValue as DirectiveConfig<typeof el>);
-      const theDiff = diff(oldConfig, newConfig) as Diff<Config<typeof el>>;
-      if (theDiff.constraints) {
-        constrain(el, theDiff.constraints);
-      }
-      if (diff) {
-        constrain(el, diff);
+    if (isConstrainable(el, true)) {
+      const config = normalizeConfig(binding.value, el);
+      if (config) {
+        constrain(el, config.constraints);
 
         if (isComponentWithConstrainedFields(vnode.context)) {
-          vnode.context.setConstrainedField(el, newConstraints);
+          vnode.context.setConstrainedField(el, config);
+        }
+      }
+    }
+  },
+  update: (el, binding, vnode) => {
+    if (isConstrainable(el, true)) {
+      const oldConfig = normalizeConfig(binding.oldValue, el);
+      const newConfig = normalizeConfig(binding.value, el);
+      if (oldConfig && newConfig) {
+        const diff = doDiff(oldConfig, newConfig) as Diff<Config<typeof el>>;
+
+        if (diff.constraints) {
+          constrain(el, diff.constraints);
+        }
+
+        if (
+          isComponentWithConstrainedFields(vnode.context) &&
+          (diff.constraints || diff.errorMessages)
+        ) {
+          vnode.context.setConstrainedField(el, newConfig);
         }
       }
     }

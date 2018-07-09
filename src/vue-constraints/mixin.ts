@@ -6,7 +6,7 @@ import {
   Constrainable,
   ConstrainedFields,
   Constraints,
-  NormalizedConfig,
+  Config,
   ErrorMessages,
   ComponentWithConstrainedFields
 } from './types';
@@ -22,7 +22,7 @@ export default class ConstraintsMixin extends Vue
 
   public setConstrainedField<T extends Constrainable>(
     el: T,
-    config?: NormalizedConfig<T>,
+    config?: Config<T>
   ) {
     if (config) {
       if (!this.constrainedFields[el.name]) {
