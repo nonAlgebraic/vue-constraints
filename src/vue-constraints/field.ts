@@ -59,12 +59,22 @@ export default class ConstrainedField<T extends Constrainable> {
 
   public refreshValidities = () => {
     const validities: Validities<T> = {};
+    let errorMessage = '';
     for (const key of Object.keys(this._config.constraints) as [
       keyof Constraints<T>
     ]) {
       validities[key] = !this.el.validity[validators[key]];
+      if (!validities[key] && this._config.errorMessages[key]) {
+        errorMessage = this._config.errorMessages[key] as string;
+        this.el.checkValidity();
+      }
     }
 
     this._validities = validities;
+
+    if (errorMessage !== '') {
+      this.el.setCustomValidity(errorMessage);
+    }
+
   };
 }

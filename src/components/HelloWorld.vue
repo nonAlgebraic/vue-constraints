@@ -1,10 +1,13 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <form>
     <InputText v-model="pass" name="pass" label="Password" :constraints="passConstraints" />
     <InputText v-model="passConfirm" name="passConfirm" label="Confirm passowrd" :constraints="passConfirmConstraints" />
     <InputText v-model="email" name="email" label="Email" :constraints="emailConstraints" />
     <InputRadio v-model="radio" name="radio" label="Foo or Bar?" :constraints="radioConstraints" :options="{foo: 'Foo', bar: 'Bar'}" />
+    <button>click!</button>
+    </form>
   </div>
 </template>
 
@@ -28,7 +31,10 @@ export default class HelloWorld extends Vue {
   private radio: string = '';
   private passConstraints: ConstraintsConfig<HTMLInputElement> = {
     required: true,
-    minLength: 8,
+    minLength:  {
+      constraint: 8,
+      errorMessage: 'too short!!!',
+    },
     maxLength: 10,
   };
   private passConfirmConstraints: ConstraintsConfig<HTMLInputElement> = {
@@ -61,5 +67,8 @@ li {
 }
 a {
   color: #42b983;
+}
+:not(form):invalid {
+  background-color: blue;
 }
 </style>

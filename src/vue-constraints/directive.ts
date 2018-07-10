@@ -2,7 +2,6 @@ import Vue, { VNodeDirective, DirectiveOptions } from 'vue';
 import { diff as doDiff } from 'deep-object-diff';
 import {
   Constraints,
-  ConstraintsConfig,
   Config,
   Diff,
   Constraint,
