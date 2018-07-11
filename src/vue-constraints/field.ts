@@ -29,6 +29,7 @@ export default class ConstrainedField<T extends Constrainable> {
     this.el = el;
     this.config = config;
     this.addListener(el);
+    this.el.addEventListener('invalid', this.setCustomValidity, { passive: true });
   }
 
   public get config() {
@@ -42,6 +43,13 @@ export default class ConstrainedField<T extends Constrainable> {
 
   public get validities() {
     return this._validities;
+  }
+
+  public init() {
+    this.refreshValidities();
+    if (this.el.form) {
+      this.el.form.reportValidity();
+    }
   }
 
   public destroy = () => {
@@ -59,22 +67,26 @@ export default class ConstrainedField<T extends Constrainable> {
 
   public refreshValidities = () => {
     const validities: Validities<T> = {};
-    let errorMessage = '';
     for (const key of Object.keys(this._config.constraints) as [
       keyof Constraints<T>
     ]) {
       validities[key] = !this.el.validity[validators[key]];
-      if (!validities[key] && this._config.errorMessages[key]) {
-        errorMessage = this._config.errorMessages[key] as string;
-        this.el.checkValidity();
-      }
     }
 
     this._validities = validities;
+  };
 
-    if (errorMessage !== '') {
+  private setCustomValidity = () => {
+    let errorMessage = this.el.validationMessage;
+    let hasCustomErrorMessage = false;
+    for (const key of Object.keys(this._config.errorMessages) as [keyof Config<T>['errorMessages']]) {
+      if (this._config.errorMessages[key] && !this._config.constraints[key]) {
+        hasCustomErrorMessage = true;
+        errorMessage = this._config.errorMessages[key] as string;
+      }
+    }
+    if (hasCustomErrorMessage) {
       this.el.setCustomValidity(errorMessage);
     }
-
-  };
+  }
 }
