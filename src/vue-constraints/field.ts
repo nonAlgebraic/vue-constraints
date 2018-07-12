@@ -29,7 +29,6 @@ export default class ConstrainedField<T extends Constrainable> {
     this.el = el;
     this.config = config;
     this.addListener(el);
-    this.el.addEventListener('invalid', this.setCustomValidity, { passive: true });
   }
 
   public get config() {
@@ -47,9 +46,6 @@ export default class ConstrainedField<T extends Constrainable> {
 
   public init() {
     this.refreshValidities();
-    if (this.el.form) {
-      this.el.form.reportValidity();
-    }
   }
 
   public destroy = () => {
@@ -75,18 +71,4 @@ export default class ConstrainedField<T extends Constrainable> {
 
     this._validities = validities;
   };
-
-  private setCustomValidity = () => {
-    let errorMessage = this.el.validationMessage;
-    let hasCustomErrorMessage = false;
-    for (const key of Object.keys(this._config.errorMessages) as [keyof Config<T>['errorMessages']]) {
-      if (this._config.errorMessages[key] && !this._config.constraints[key]) {
-        hasCustomErrorMessage = true;
-        errorMessage = this._config.errorMessages[key] as string;
-      }
-    }
-    if (hasCustomErrorMessage) {
-      this.el.setCustomValidity(errorMessage);
-    }
-  }
 }
